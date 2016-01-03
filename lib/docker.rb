@@ -1,0 +1,10 @@
+require_relative 'docker/version'
+require_relative 'docker/error'
+require_relative 'docker/session'
+
+module Docker
+  # Create a new session with default options.
+  def self.new
+    Session.new
+  end
+end
