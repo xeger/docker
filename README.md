@@ -29,7 +29,7 @@ Or install it yourself as:
 
 ## Usage
 
-### Invoking from Ruby code
+Instantiate a `Docker::Session` and call its methods to invoke Docker commands. 
 
 ```ruby
 require 'docker'
@@ -40,7 +40,7 @@ docker = Docker.new
 
 docker.version
 
-docker.run(t:true, i:true, 'busybox', '/bin/sh')
+docker.run('busybox', '/bin/sh', interactive:true, tty:true)
 ```
 
 ## Development
