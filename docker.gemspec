@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["xeger@xeger.net"]
 
   spec.summary       = %q{Docker CLI wrapper.}
-  spec.description   = %q{Provides an OOP interface to docker without relying on its HTTP API.}
+  spec.description   = %q{Provides an OOP interface to docker's command-line interface without relying on its HTTP API.}
   spec.homepage      = "https://github.com/xeger/docker"
   spec.license       = "MIT"
 
