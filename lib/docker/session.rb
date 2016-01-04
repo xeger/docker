@@ -26,7 +26,7 @@ module Docker
 
     # Kill a running container.
     #
-    # @param [String] container id or name of container to kill
+    # @param [String] container id or name of container
     # @param [String] signal Unix signal to send: KILL, TERM, QUIT, HUP, etc
     def kill(container, signal:nil)
       run!('kill', {signal:signal}, container)
@@ -104,6 +104,32 @@ module Docker
       run!('run', *cmd).strip
     end
 
+    # Remove a container.
+    #
+    # @param [String] container id or name of container
+    # @param [Boolean] force remove the container even if it's in use
+    # @param [Boolean] volumes remove associated data volumes
+    def rm(container, force:false, volumes:false)
+      run!('rm', {force:force,volumes:volumes},container).strip
+    end
+
+    # Stop a running container.
+    #
+    # @param [String] container id or name of container
+    # @param [Integer] time seconds to wait for stop before killing it
+    def stop(container, time:nil)
+      run!('stop', {time:time}, container).strip
+    end
+
+    # Start a stopped container.
+    #
+    # @param [String] container id or name of container
+    # @param [Boolean] attach attach STDOUT/STDERR and forward signals
+    # @param [Boolean] interactive attach container's STDIN
+    def start(container, attach:false, interactive:false)
+      run!('start', {attach:attach,interactive:interactive}, container).strip
+    end
+
     # Provide version information about the Docker client and server.
     #
     # @return [Hash] dictionary of strings describing version/build info
@@ -138,6 +164,7 @@ module Docker
     # @return [String] output of the command
     # @raise [RuntimeError] if command fails
     def run!(*args)
+      # STDERR.puts "+ " + (['docker'] + args).inspect
       cmd = @shell.run('docker', *args).join
       status, out, err = cmd.status, cmd.captured_output, cmd.captured_error
       status.success? || raise(Error.new(args.first, status, err))
