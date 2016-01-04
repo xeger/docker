@@ -1,4 +1,5 @@
 require 'backticks'
+require 'json'
 
 module Docker
   # A Ruby OOP interface to a docker session. A session is bound to
@@ -19,9 +20,28 @@ module Docker
     # @return [#command]
     attr_reader :shell
 
-    def initialize(shell=Backticks::Runner.new(interactive:true), host:ENV['DOCKER_HOST'])
+    # Hint that we are able to parse ps output
+    PS_HEADER = /ID\s+IMAGE\s+COMMAND\s+CREATED\s+STATUS\s+PORTS\s+NAMES$/
+
+    def initialize(shell=Backticks::Runner.new, host:ENV['DOCKER_HOST'])
       @host = host
       @shell = shell
+    end
+
+    # Get detailed information about a container(s).
+    #
+    # @return [Container,Array] one container if one was asked about; a list of containers otherwise
+    # @param [Array,String] container ID/name or list of IDs/names
+    def inspect(container_s)
+      containers = container_s
+      containers = [containers] unless container_s.is_a?(Array)
+      out = run!('inspect', containers)
+      result = JSON.parse(out).map { |c| Container.new(c, session:self)}
+      if container_s.is_a?(Array)
+        result
+      else
+        result.first
+      end
     end
 
     # Kill a running container.
@@ -30,6 +50,19 @@ module Docker
     # @param [String] signal Unix signal to send: KILL, TERM, QUIT, HUP, etc
     def kill(container, signal:nil)
       run!('kill', {signal:signal}, container)
+    end
+
+    # List containers. This actually does a `ps` followed by a very large
+    # `inspect`, so it's expensive but super detailed.
+    #
+    # @param
+    # @return [Array] list of Docker::Container objects
+    def ps(all:false, before:nil, latest:false, since:nil)
+      out = run!('ps', all:all,before:before,latest:latest,since:since)
+      lines = out.split(/[\n\r]+/)
+      header = lines.shift
+      ids = lines.map { |line| line.split(/\s+/).first }
+      inspect(ids)
     end
 
     # Run a command in a new container.

@@ -6,23 +6,42 @@ describe Docker::Session do
 
   let(:container_id) { subject.run 'busybox', '/bin/sh', interactive:true, tty:true, detach:true }
 
-  describe '#kill' do
-    it 'accepts container IDs' do
-      subject.kill(container_id)
-      # TODO check that container is gone
-    end
+  after do
+    subject.kill(container_id) rescue nil
+  end
 
-    it 'accepts container names'
+  describe '#inspect' do
+    it 'provides container information' do
+      info = subject.inspect(container_id)
+      expect(info.id).to eq(container_id)
+      expect(info).to respond_to(:name)
+      expect(info).to respond_to(:status)
+    end
+  end
+
+  describe '#kill' do
+    it 'kills containers dead' do
+      subject.kill(container_id)
+      expect(subject.inspect(container_id).status).to eq('exited')
+    end
+  end
+
+  describe '#ps' do
+    it 'lists containers' do
+      container_id
+      ps = subject.ps
+      expect(ps).to be_a(Array)
+      ps.each { |e| expect(e).to be_a(Docker::Container) }
+    end
   end
 
   describe '#rm' do
-    it 'accepts container IDs' do
+    it 'removes containers' do
       subject.kill(container_id)
       subject.rm(container_id)
-      # TODO check that container is gone
+      expect {
+        subject.inspect(container_id).status}.to raise_error(Docker::Error)
     end
-
-    it 'accepts container names'
   end
 
   describe '#run' do
@@ -32,17 +51,17 @@ describe Docker::Session do
     end
   end
 
-  describe '#start', slow:true do
+  describe '#start' do
     it 'accepts container IDs' do
-      subject.stop(container_id, time:1)
+      subject.stop(container_id, time:0)
       subject.start(container_id)
-      # TODO check that container is started
+      expect(subject.inspect(container_id).status).to eq('running')
     end
   end
 
-  describe '#stop', slow:true do
+  describe '#stop' do
     it 'accepts container IDs' do
-      subject.stop(container_id, time:1)
+      subject.stop(container_id, time:0)
       # TODO check that container is stopped
     end
   end
