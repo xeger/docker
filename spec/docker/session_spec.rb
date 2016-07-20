@@ -17,6 +17,13 @@ describe Docker::Session do
       expect(info).to respond_to(:name)
       expect(info).to respond_to(:status)
     end
+    context 'given an empty array of containers' do
+      let(:container_id) { [] }
+      it 'returns an empty array' do
+        info = subject.inspect(container_id)
+        expect(info).to eq([])
+      end
+    end
   end
 
   describe '#kill' do
