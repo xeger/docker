@@ -35,6 +35,7 @@ module Docker
     def inspect(container_s)
       containers = container_s
       containers = [containers] unless container_s.is_a?(Array)
+      return [] if containers.empty?
       out = run!('inspect', containers)
       result = JSON.parse(out).map { |c| Container.new(c, session:self)}
       if container_s.is_a?(Array)
@@ -127,7 +128,9 @@ module Docker
               expose:expose, hostname:hostname, interactive:interactive,
               link:link, memory:memory, name:name, publish:publish,
               publish_all:publish_all, restart:restart, rm:rm, tty:tty,
-              user:user, volume:volume, volumes_from:volumes_from}
+              user:user, volume:volume, volumes_from:volumes_from
+      }.reject { |k, v| v.nil? || (v.respond_to?(:empty?) && v.empty?) }
+
 
       # after the options come the image and command
       cmd << image
