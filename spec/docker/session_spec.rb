@@ -56,6 +56,15 @@ describe Docker::Session do
       output = subject.run('busybox', '/bin/sh', '-c', 'echo "hello world"')
       expect(output).to match(/hello world/)
     end
+
+    context 'with multiple volumes' do
+      it 'accepts multiple volumes as options' do
+        output = subject.run('busybox', '/bin/sh', '-c', 'echo "hello world"', {
+          volume: ['/tmp:/foo', '/tmp:/bar']
+        })
+        expect(output).to match(/hello world/)
+      end
+    end
   end
 
   describe '#start' do
