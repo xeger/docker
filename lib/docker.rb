@@ -2,6 +2,7 @@ require_relative 'docker/version'
 require_relative 'docker/error'
 require_relative 'docker/asset'
 require_relative 'docker/container'
+require_relative 'docker/cli'
 require_relative 'docker/session'
 
 module Docker
