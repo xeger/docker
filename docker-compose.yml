@@ -1,0 +1,26 @@
+version: '2.1'
+
+services:
+
+  lib:
+    image: xeger/docker-gem:development
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+
+    volumes:
+      # Mount our app code directory (".") into our app containers at the `/usr/src/lib` folder:
+      - .:/usr/src/lib
+
+      # Add the docker socket to enable docker in docker:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    # Keep the stdin open, so we can attach to our app container's process
+    # and do things such as byebug, etc:
+    stdin_open: true
+
+    # Enable sending signals (CTRL+C, CTRL+P + CTRL+Q) into the container:
+    tty: true
+
+    # The command:
+    command: guard
