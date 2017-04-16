@@ -113,7 +113,7 @@ module Docker
             tty:false,
             user:nil,
             volume:[],
-            volumes_from:nil)
+            volumes_from:nil, &block)
 
       cmd = []
 
@@ -137,7 +137,7 @@ module Docker
       cmd.concat(command_and_args)
 
       # return the output of `docker run` minus extra whitespace
-      run!('run', *cmd).strip
+      run!('run', *cmd, &block).strip
     end
 
     # Remove a container.
@@ -199,9 +199,12 @@ module Docker
     #   Backticks::Runner#command
     # @return [String] output of the command
     # @raise [RuntimeError] if command fails
-    def run!(*args)
+    def run!(*args, &block)
       # STDERR.puts "+ " + (['docker'] + args).inspect
-      cmd = @shell.run('docker', *args).join
+      cmd = @shell.run('docker', *args)
+      cmd.tap(&block) if block_given?
+      cmd.join
+
       status, out, err = cmd.status, cmd.captured_output, cmd.captured_error
       status.success? || raise(Error.new(args.first, status, err))
       out
