@@ -23,7 +23,7 @@ module Docker
     # Hint that we are able to parse ps output
     PS_HEADER = /ID\s+IMAGE\s+COMMAND\s+CREATED\s+STATUS\s+PORTS\s+NAMES$/
 
-    def initialize(shell=Backticks::Runner.new, host:ENV['DOCKER_HOST'])
+    def initialize(shell=Backticks::Runner.new(cli: Docker::CLI::Getopt), host:ENV['DOCKER_HOST'])
       @host = host
       @shell = shell
     end
