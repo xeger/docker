@@ -71,6 +71,19 @@ module Docker
     # @example open a busybox shell
     #   session.run('busybox', '/bin/sh', tty:true, interactive:true)
     #
+    # @example open busybox and remove vowels from user input
+    #   session.run('busybox', '/bin/sh', tty:true, interactive:true) do |stream, data|
+    #     if [:stdout, :stderr].include?(stream)
+    #       puts data
+    #     else
+    #       data.gsub(/[aeiouy]/, '')
+    #     end
+    #   end
+    #
+    # @yield [stream, data] intercepts container I/O and passes it to the block
+    # @yieldparam [Symbol] stream :stdin, :stdout or :stderr
+    # @yieldparam [String] data the intercepted stream activity
+    #
     # @param [String] image id or name of base image to use for container
     # @param [Array] command_and_args optional command to run in container
     # @param [Integer] cpu_period scheduler period (μs)
@@ -194,6 +207,10 @@ module Docker
 
     # Run a docker command without validating that the CLI parameters
     # make sense. Prepend implicit options if suitable.
+    #
+    # @yield [stream, data] intercepts command I/O and passes it to the block
+    # @yieldparam [Symbol] stream :stdin, :stdout or :stderr
+    # @yieldparam [String] data the intercepted stream activity
     #
     # @param [Array] args command-line arguments in the format accepted by
     #   Backticks::Runner#command
